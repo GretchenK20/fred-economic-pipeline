@@ -1,0 +1,32 @@
+# Core pipeline
+requests>=2.31.0
+pandas>=2.1.0
+numpy>=1.26.0
+pyarrow>=14.0.0
+
+# Database
+psycopg2-binary>=2.9.0
+sqlalchemy>=2.0.0
+
+# Warehouse (local dev)
+duckdb>=0.9.0
+
+# dbt
+dbt-core>=1.7.0
+dbt-postgres>=1.7.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+
+# Environment
+python-dotenv>=1.0.0
+
+# Linting
+ruff>=0.1.0
+
+# Notebooks
+jupyter>=1.0.0
+matplotlib>=3.8.0
+seaborn>=0.13.0

@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: fred_raw
+    schema: raw
+    description: Cleaned FRED observations loaded from the Python transform layer.
+    tables:
+      - name: cleaned_observations
+        description: One row per (series_id, date) after deduplication, anomaly flagging, and gap detection.

@@ -1,0 +1,65 @@
+name: CI — FRED Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pytest
+        run: |
+          pytest tests/ \
+            --tb=short \
+            --cov=ingestion \
+            --cov=transforms \
+            --cov-report=term-missing \
+            -v
+        env:
+          FRED_API_KEY: test_key_ci
+
+      - name: Lint with ruff
+        run: ruff check ingestion/ transforms/
+        continue-on-error: true
+
+  dbt-compile:
+    name: Validate dbt models compile
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dbt
+        run: pip install dbt-postgres
+
+      - name: dbt compile
+        run: |
+          cd dbt_project
+          dbt compile --profiles-dir . --target ci
+        env:
+          DBT_TARGET: ci
