@@ -1,6 +1,6 @@
 # FRED Economic Data Pipeline
 
-A production-grade ELT pipeline that ingests macroeconomic time series data from the Federal Reserve Economic Data (FRED) API, transforms it through a layered dbt model, and surfaces actionable economic indicators in a Metabase dashboard.
+A production-grade ELT pipeline that ingests macroeconomic time series data from the Federal Reserve Economic Data (FRED) API, transforms it through a layered dbt model, and surfaces actionable economic indicators through a Python visualization notebook.
 
 ## The Business Problem
 
@@ -21,7 +21,7 @@ A single mart table — `fct_economic_dashboard` — containing one row per mont
 - **Business cycle:** Recession classification, business cycle phase, economic health score
 - **Trend signals:** 3-month moving averages, year-over-year deltas, directional trend labels
 
-This output is designed for direct consumption by Metabase dashboards, analytical notebooks, or downstream ML models.
+This output is designed for direct consumption by analytical notebooks, Metabase dashboards, or downstream ML models.
 
 ## Dashboard & Visualizations
 
@@ -89,8 +89,8 @@ FRED Public API (BLS, BEA, Treasury, Federal Reserve, Census)
        │
        ▼
 ┌──────────────────┐
-│   Metabase       │  Economic dashboard — yield curve, recession
-│   Dashboard      │  indicators, inflation trends, labor market
+│   Notebook       │  economic_story.ipynb — unemployment, inflation,
+│   (matplotlib)   │  yield curve, recession shading → PNG output
 └──────────────────┘
 ```
 
@@ -101,7 +101,7 @@ FRED Public API (BLS, BEA, Treasury, Federal Reserve, Census)
 | Ingestion  | Python 3.12     | API fetching, validation, revision tracking    |
 | Storage    | PostgreSQL      | Local warehouse, revision history              |
 | Transform  | dbt Core        | Layered SQL models, data quality tests         |
-| BI         | Metabase        | Dashboard and visualization (localhost:3000)   |
+| Visualization | matplotlib / Jupyter | Publication-quality charts from fct_economic_dashboard |
 | Testing    | pytest          | Unit tests for ingestion and transform layers  |
 | Linting    | ruff            | Code quality                                   |
 
@@ -110,8 +110,7 @@ FRED Public API (BLS, BEA, Treasury, Federal Reserve, Census)
 ### Prerequisites
 
 - Python >= 3.12
-- PostgreSQL 16 (local install, not Docker)
-- Docker (for Metabase only)
+- PostgreSQL 16 (local install)
 - `pip install -r requirements.txt`
 
 Register for a free FRED API key at: https://fred.stlouisfed.org/docs/api/api_key.html
@@ -127,24 +126,9 @@ pg_ctl -D /usr/local/var/postgresql@16 start
 psql postgres -c "CREATE USER fred_user WITH PASSWORD 'fred_pass';"
 psql postgres -c "CREATE DATABASE fred_pipeline OWNER fred_user;"
 
-# Start Metabase (Docker)
-docker run -d -p 3000:3000 --name metabase metabase/metabase
-
 # Run the full pipeline
 make all
 ```
-
-### Connect Metabase
-
-Once Metabase is running, open http://localhost:3000 and connect to PostgreSQL:
-
-- **Host:** host.docker.internal
-- **Port:** 5433
-- **Database:** fred_pipeline
-- **Username:** fred_user
-- **Password:** fred_pass
-
-The primary table to explore is `public_marts.fct_economic_dashboard`.
 
 ### Run Individually
 
@@ -156,6 +140,33 @@ make transform     # Run dbt models
 make test          # Run pytest suite
 make docs          # Generate and serve dbt docs
 ```
+
+### Generate the Visualization
+
+```bash
+jupyter nbconvert --to notebook --execute notebooks/economic_story.ipynb \
+  --output economic_story.ipynb --output-dir notebooks/
+```
+
+Output is saved to `images/economic_story.png`.
+
+### Optional: Interactive Dashboard
+
+For an interactive SQL-based dashboard, connect Metabase to the pipeline database.
+
+```bash
+docker run -d -p 3000:3000 --name metabase metabase/metabase
+```
+
+Once running, open http://localhost:3000 and connect to PostgreSQL:
+
+- **Host:** host.docker.internal
+- **Port:** 5433
+- **Database:** fred_pipeline
+- **Username:** fred_user
+- **Password:** fred_pass
+
+The primary table to explore is `public_marts.fct_economic_dashboard`.
 
 ## Project Structure
 
