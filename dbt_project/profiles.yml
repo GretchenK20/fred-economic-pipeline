@@ -1,0 +1,12 @@
+fred_pipeline:
+  target: ci
+  outputs:
+    ci:
+      type: postgres
+      host: localhost
+      user: postgres
+      password: postgres
+      port: 5432
+      dbname: fred_db
+      schema: public
+      threads: 1
