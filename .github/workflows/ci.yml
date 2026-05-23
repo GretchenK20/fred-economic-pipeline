@@ -60,6 +60,6 @@ jobs:
       - name: dbt compile
         run: |
           cd dbt_project
-          dbt compile --profiles-dir . --target ci
+          dbt compile --profiles-dir ${{ github.workspace }}/dbt_project --target ci
         env:
           DBT_TARGET: ci
