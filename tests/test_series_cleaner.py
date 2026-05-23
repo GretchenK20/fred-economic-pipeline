@@ -35,7 +35,7 @@ def make_series(values, dates=None, frequency="m", series_id="UNRATE"):
         "date": dates,
         "value": values,
         "realtime_start": dates,
-        "realtime_end": pd.Timestamp("9999-12-31"),
+        "realtime_end": pd.Timestamp("2100-12-31"),
         "category": "labor",
         "frequency": frequency,
         "fetched_at": datetime.now(timezone.utc),

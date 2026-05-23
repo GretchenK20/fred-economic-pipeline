@@ -97,7 +97,7 @@ class SeriesCleaner:
         df["date"] = pd.to_datetime(df["date"])
         df["value"] = pd.to_numeric(df["value"], errors="coerce")
         df["realtime_start"] = pd.to_datetime(df["realtime_start"])
-        df["realtime_end"] = pd.to_datetime(df["realtime_end"])
+        df["realtime_end"] = pd.to_datetime(df["realtime_end"], errors="coerce")
         return df
 
     def _flag_anomalies(self, df: pd.DataFrame, series_id: str) -> pd.DataFrame:
